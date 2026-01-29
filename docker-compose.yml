@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # The Node.js API Service
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # 'mongo' here refers to the service name defined below
+      - MONGO_URI=mongodb://mongo:27017/iot_db
+      - JWT_SECRET=dockersecret
+    depends_on:
+      - mongo
+    restart: always
+
+  # The MongoDB Service
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017" # Exposed to host so you can use Compass/TablePlus
+    volumes:
+      - mongo-data:/data/db # Persist data even if container stops
+    restart: always
+
+# Define the volume for persistence
+volumes:
+  mongo-data:
