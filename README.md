@@ -34,3 +34,5 @@ npm run build: Builds the project for production.
 npm run seed: Populates the DB with initial roles/admin.
 
 npm run preview: Runs the built production files.
+
+npm run generate-types: RUN to build types

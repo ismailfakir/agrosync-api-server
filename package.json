@@ -9,7 +9,8 @@
     "seed": "vite-node src/utils/seed.ts",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-types": "openapi-typescript openapi/spec.yml --output src/types/api.ts"
   },
   "keywords": [],
   "author": "",
@@ -46,6 +47,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@types/yaml": "^1.9.6",
     "@vitest/coverage-v8": "^4.0.18",
+    "openapi-typescript": "^7.10.1",
     "supertest": "^7.2.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",

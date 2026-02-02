@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const seed = async () => {
+export const seed = async () => {
   await connectDB();
 
   try {
@@ -28,7 +28,7 @@ const seed = async () => {
 
     // 2. Create Admin User
     const adminRole = await RoleModel.findOne({ name: 'admin' });
-    const adminEmail = 'admin@iot-api.com';
+    const adminEmail = 'admin@agrosync.com';
     
     const existingAdmin = await UserModel.findOne({ email: adminEmail });
     if (!existingAdmin) {
@@ -51,4 +51,4 @@ const seed = async () => {
   }
 };
 
-seed();
+//seed();

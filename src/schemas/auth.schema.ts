@@ -4,18 +4,18 @@ import { registry } from '../utils/openapi';
 
 extendZodWithOpenApi(z);
 
-export const LoginSchema = registry.register('LoginInput', z.object({
+export const LoginSchema = registry.register('LoginUserRequest', z.object({
   email: z.string().email(),
   password: z.string().min(6),
 }));
 
-export const RegisterSchema = registry.register('RegisterInput', z.object({
+export const RegisterSchema = registry.register('RegisterUserRequest', z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().min(2),
 }));
 
-export const AuthResponseSchema = registry.register('AuthResponse', z.object({
+export const AuthResponseSchema = registry.register('LoginUserResponse', z.object({
   token: z.string(),
   user: z.object({
     id: z.string(),

@@ -4,6 +4,8 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
+# Populates the DB with initial roles/admin.
+# RUN npm run seed 
 # Vite build creates a 'dist' folder
 RUN npm run build
 

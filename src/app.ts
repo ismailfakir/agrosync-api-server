@@ -7,6 +7,7 @@ import { connectDB } from './config/db';
 import { generateOpenAPIDocs } from './utils/openapi';
 import { errorHandler } from './middlewares/error.middleware';
 import { ApiError } from './utils/apiError';
+import { seed } from './utils/seed';
 
 // Import Routes
 import deviceRoutes from './controllers/device.controller';
@@ -20,7 +21,12 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:5173', // Match your frontend's address
+  methods: ['GET', 'POST','PUT','DELETE'], // Specify the allowed HTTP methods
+};
+app.use(cors(corsOptions));
+//app.use(cors());
 app.use(express.json());
 
 // Routes

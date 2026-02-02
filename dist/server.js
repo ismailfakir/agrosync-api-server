@@ -10,6 +10,7 @@ const zodToOpenapi = require("@asteasolutions/zod-to-openapi");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const dotenv = require("dotenv");
 const logger = winston.createLogger({
   level: "info",
@@ -169,7 +170,7 @@ const authorize = (roles) => {
     next();
   };
 };
-const router$2 = express.Router();
+const router$3 = express.Router();
 registry.registerPath({
   method: "post",
   path: "/devices",
@@ -184,7 +185,7 @@ registry.registerPath({
     400: { description: "Validation Error" }
   }
 });
-router$2.post(
+router$3.post(
   "/",
   authenticate,
   validate(CreateDeviceSchema),
@@ -207,7 +208,7 @@ registry.registerPath({
     200: { description: "List of devices" }
   }
 });
-router$2.get("/", authenticate, async (req, res) => {
+router$3.get("/", authenticate, async (req, res) => {
   const devices = await DeviceService.findAll(req.user.id, req.user.roles[0]);
   if (!devices) {
     throw new ApiError(404, "Device not found");
@@ -219,7 +220,9 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true, select: false },
   // Don't return password by default
   name: { type: String, required: true },
-  roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }]
+  roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
+  passwordResetToken: { type: String, select: false },
+  passwordResetExpires: { type: Date, select: false }
 }, { timestamps: true });
 const UserModel = mongoose.model("User", UserSchema);
 const UserService = {
@@ -246,7 +249,7 @@ const UserService = {
     return await UserModel.findByIdAndDelete(id);
   }
 };
-const router$1 = express.Router();
+const router$2 = express.Router();
 registry.registerPath({
   method: "get",
   path: "/users/me",
@@ -255,11 +258,11 @@ registry.registerPath({
   security: [{ bearerAuth: [] }],
   responses: { 200: { description: "User data" } }
 });
-router$1.get("/me", authenticate, async (req, res) => {
+router$2.get("/me", authenticate, async (req, res) => {
   const user = await UserService.findById(req.user.id);
   res.json(user);
 });
-router$1.get("/", authenticate, authorize(["admin"]), async (req, res) => {
+router$2.get("/", authenticate, authorize(["admin"]), async (req, res) => {
   const users = await UserService.findAll();
   res.json(users);
 });
@@ -308,6 +311,29 @@ const AuthService = {
       token
     };
   },
+  async forgotPassword(email) {
+    const user = await UserModel.findOne({ email });
+    if (!user) throw new ApiError(404, "No user found with that email");
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1e3);
+    await user.save();
+    return resetToken;
+  },
+  async resetPassword(token, newPassword) {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await UserModel.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: /* @__PURE__ */ new Date() }
+      // Must not be expired
+    }).select("+password");
+    if (!user) throw new ApiError(400, "Token is invalid or has expired");
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordResetToken = void 0;
+    user.passwordResetExpires = void 0;
+    await user.save();
+    return { message: "Password reset successful" };
+  },
   /**
    * Generates a JWT containing the user ID and assigned roles.
    */
@@ -331,16 +357,16 @@ const AuthService = {
   }
 };
 zodToOpenapi.extendZodWithOpenApi(zod.z);
-const LoginSchema = registry.register("LoginInput", zod.z.object({
+const LoginSchema = registry.register("LoginUserRequest", zod.z.object({
   email: zod.z.string().email(),
   password: zod.z.string().min(6)
 }));
-const RegisterSchema = registry.register("RegisterInput", zod.z.object({
+const RegisterSchema = registry.register("RegisterUserRequest", zod.z.object({
   email: zod.z.string().email(),
   password: zod.z.string().min(6),
   name: zod.z.string().min(2)
 }));
-const AuthResponseSchema = registry.register("AuthResponse", zod.z.object({
+const AuthResponseSchema = registry.register("LoginUserResponse", zod.z.object({
   token: zod.z.string(),
   user: zod.z.object({
     id: zod.z.string(),
@@ -354,7 +380,7 @@ const catchAsync = (fn) => {
     fn(req, res, next).catch(next);
   };
 };
-const router = express.Router();
+const router$1 = express.Router();
 registry.registerPath({
   method: "post",
   path: "/auth/register",
@@ -389,21 +415,110 @@ registry.registerPath({
     }
   }
 });
-router.post("/register", validate(RegisterSchema), catchAsync(async (req, res) => {
-  const result = await AuthService.register(req.body);
-  res.status(201).json(result);
+router$1.post(
+  "/register",
+  validate(RegisterSchema),
+  catchAsync(async (req, res) => {
+    const result = await AuthService.register(req.body);
+    res.status(201).json(result);
+  })
+);
+router$1.post(
+  "/login",
+  validate(LoginSchema),
+  catchAsync(async (req, res) => {
+    const result = await AuthService.login(req.body);
+    res.status(200).json(result);
+  })
+);
+router$1.post(
+  "/forgot-password",
+  catchAsync(async (req, res) => {
+    const resetToken = await AuthService.forgotPassword(req.body.email);
+    res.status(200).json({ message: "Token sent to email", token: resetToken });
+  })
+);
+router$1.post(
+  "/reset-password/:token",
+  catchAsync(async (req, res) => {
+    const result = await AuthService.resetPassword(
+      req.params.token,
+      req.body.password
+    );
+    res.status(200).json(result);
+  })
+);
+const SensorDataSchema = new mongoose.Schema({
+  device: { type: mongoose.Schema.Types.ObjectId, ref: "Device", required: true },
+  value: { type: Number, required: true },
+  unit: { type: String, required: true },
+  dataType: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+}, {
+  // Optimization: time-series data often benefits from specific indexing
+  timeseries: {
+    timeField: "timestamp",
+    metaField: "device",
+    granularity: "seconds"
+  }
+});
+SensorDataSchema.index({ device: 1, timestamp: -1 });
+const SensorDataModel = mongoose.model("SensorData", SensorDataSchema);
+const SensorDataService = {
+  async recordData(userId, deviceId, data) {
+    const device = await DeviceModel.findOne({ _id: deviceId, owner: userId });
+    if (!device) throw new ApiError(403, "Unauthorized: You do not own this device");
+    return await SensorDataModel.create({
+      device: deviceId,
+      ...data
+    });
+  },
+  async getDeviceHistory(userId, deviceId, limit = 100) {
+    const device = await DeviceModel.findOne({ _id: deviceId, owner: userId });
+    if (!device) throw new ApiError(403, "Unauthorized access to device data");
+    return await SensorDataModel.find({ device: deviceId }).sort({ timestamp: -1 }).limit(limit);
+  }
+};
+const CreateSensorDataSchema = registry.register("CreateSensorDataInput", zod.z.object({
+  value: zod.z.number(),
+  unit: zod.z.string(),
+  dataType: zod.z.string(),
+  deviceId: zod.z.string()
+  // The device reporting the data
 }));
-router.post("/login", validate(LoginSchema), catchAsync(async (req, res) => {
-  const result = await AuthService.login(req.body);
-  res.status(200).json(result);
+registry.register("SensorDataResponse", zod.z.object({
+  id: zod.z.string(),
+  value: zod.z.number(),
+  unit: zod.z.string(),
+  dataType: zod.z.string(),
+  timestamp: zod.z.date(),
+  device: zod.z.string()
 }));
+const router = express.Router();
+router.post(
+  "/",
+  authenticate,
+  validate(CreateSensorDataSchema),
+  catchAsync(async (req, res) => {
+    const { deviceId, ...payload } = req.body;
+    const data = await SensorDataService.recordData(req.user.id, deviceId, payload);
+    res.status(201).json(data);
+  })
+);
 const app = express();
 connectDB();
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:5173",
+  // Match your frontend's address
+  methods: ["GET", "POST", "PUT", "DELETE"]
+  // Specify the allowed HTTP methods
+};
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use("/api/devices", router$2);
-app.use("/api/users", router$1);
-app.use("/api/auth", router);
+app.use("/api/devices", router$3);
+app.use("/api/users", router$2);
+app.use("/api/auth", router$1);
+app.use("/api/sensor", router);
 const openApiDocs = generateOpenAPIDocs();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocs));
 app.get("/api-docs.json", (req, res) => {

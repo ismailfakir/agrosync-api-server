@@ -1,3 +1,4 @@
 {"level":"info","message":"::1 - - [28/Jan/2026:02:56:27 +0000] \"GET /favicon.ico HTTP/1.1\" 404 150 \"http://localhost:3000/api/devices\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-01-28T02:56:27.517Z"}
 {"level":"error","message":"404 - Route not found - /favicon.ico - GET","timestamp":"2026-01-28T03:26:31.948Z"}
 {"level":"info","message":"127.0.0.1 - - [28/Jan/2026:03:26:31 +0000] \"GET /favicon.ico HTTP/1.1\" 404 1147 \"http://localhost:3000/api/devices\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-01-28T03:26:31.953Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-02T04:28:06.022Z"}
