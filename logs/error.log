@@ -1,2 +1,4 @@
-{"level":"error","message":"404 - Route not found - /favicon.ico - GET","timestamp":"2026-01-28T03:26:31.948Z"}
-{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-02T04:28:06.022Z"}
+
+{"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:23:54.383Z"}
+{"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:32:59.538Z"}
+{"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:34:49.371Z"}

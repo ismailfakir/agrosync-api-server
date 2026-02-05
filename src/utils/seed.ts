@@ -39,7 +39,7 @@ export const seed = async () => {
         password: hashedPassword,
         roles: [adminRole!._id]
       });
-      console.log('✅ Admin user created: admin@iot-api.com / Admin123!');
+      console.log('✅ Admin user created: admin@agrosync.com / Admin123!');
     } else {
       console.log('ℹ️ Admin user already exists');
     }
@@ -51,4 +51,4 @@ export const seed = async () => {
   }
 };
 
-//seed();
+seed();

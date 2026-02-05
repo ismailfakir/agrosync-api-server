@@ -34,6 +34,8 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       // Assuming 'user' role for basic creation
+      console.log("creating device: "+req.body);
+      console.log("user id: "+req.user!.id);
       const device = await DeviceService.create(req.body, req.user!.id);
       res.status(201).json(device);
     } catch (e: any) {

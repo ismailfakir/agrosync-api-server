@@ -1,14 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IIotDevice extends Document {
-  serialNumber: string;
+  name: string;
+  location: string;
   type: string; // e.g., 'sensor', 'actuator'
   status: 'online' | 'offline' | 'maintenance';
   owner: mongoose.Types.ObjectId;
 }
 
 const DeviceSchema = new Schema<IIotDevice>({
-  serialNumber: { type: String, required: true, unique: true },
+  name: { type: String, required: true, unique: false },
+  location: { type: String, required: false, unique: false },
   type: { type: String, required: true },
   status: { 
     type: String, 

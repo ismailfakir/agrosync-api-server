@@ -5,14 +5,16 @@ import { registry } from '../utils/openapi';
 extendZodWithOpenApi(z);
 
 export const CreateDeviceSchema = registry.register('CreateDeviceRequest', z.object({
-  serialNumber: z.string().min(3),
+  name: z.string().min(3),
+  location: z.string().min(3),
   type: z.string(),
   status: z.enum(['online', 'offline', 'maintenance']).optional(),
 }));
 
 export const DeviceResponseSchema = registry.register('DeviceResponse', z.object({
   id: z.string(),
-  serialNumber: z.string(),
+  name: z.string(),
+  location: z.string(),
   type: z.string(),
   status: z.string(),
   owner: z.string(), // User ID

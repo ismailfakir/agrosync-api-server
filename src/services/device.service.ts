@@ -1,22 +1,28 @@
-import { DeviceModel } from '../models/device.model';
-import { CreateDeviceSchema } from '../schemas/device.schema';
-import { z } from 'zod';
+import { DeviceModel } from "../models/device.model";
+import { CreateDeviceSchema } from "../schemas/device.schema";
+import { z } from "zod";
 
 type CreateDeviceInput = z.infer<typeof CreateDeviceSchema>;
 
 export const DeviceService = {
   async create(data: CreateDeviceInput, userId: string) {
-    const device = await DeviceModel.create({
-      ...data,
-      owner: userId,
-    });
-    return device;
+    try {
+      const device = await DeviceModel.create({
+        ...data,
+        status: "offline",
+        owner: userId,
+      });
+      console.log('✅ Device created');
+      return device;
+    } catch (error) {
+      console.error("❌ Saving device failed:", error);
+    }
   },
 
   async findAll(userId: string, role: string) {
     // If admin, see all; otherwise only own devices
-    const query = role === 'admin' ? {} : { owner: userId };
-    return await DeviceModel.find(query).populate('owner', 'name email');
+    const query = role === "admin" ? {} : { owner: userId };
+    return await DeviceModel.find(query).populate("owner", "name email");
   },
 
   async findById(id: string) {
@@ -29,5 +35,5 @@ export const DeviceService = {
 
   async delete(id: string) {
     return await DeviceModel.findByIdAndDelete(id);
-  }
+  },
 };

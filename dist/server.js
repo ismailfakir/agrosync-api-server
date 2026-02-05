@@ -35,7 +35,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/iot_db");
+    const conn = await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/agrosync");
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
@@ -91,7 +91,8 @@ const errorHandler = (err, req, res, next) => {
   res.status(statusCode).json(response);
 };
 const DeviceSchema = new mongoose.Schema({
-  serialNumber: { type: String, required: true, unique: true },
+  name: { type: String, required: true, unique: false },
+  location: { type: String, required: false, unique: false },
   type: { type: String, required: true },
   status: {
     type: String,
@@ -124,14 +125,16 @@ const DeviceService = {
   }
 };
 zodToOpenapi.extendZodWithOpenApi(zod.z);
-const CreateDeviceSchema = registry.register("CreateDeviceInput", zod.z.object({
-  serialNumber: zod.z.string().min(3),
+const CreateDeviceSchema = registry.register("CreateDeviceRequest", zod.z.object({
+  name: zod.z.string().min(3),
+  location: zod.z.string().min(3),
   type: zod.z.string(),
   status: zod.z.enum(["online", "offline", "maintenance"]).optional()
 }));
 registry.register("DeviceResponse", zod.z.object({
   id: zod.z.string(),
-  serialNumber: zod.z.string(),
+  name: zod.z.string(),
+  location: zod.z.string(),
   type: zod.z.string(),
   status: zod.z.string(),
   owner: zod.z.string(),
@@ -151,6 +154,8 @@ const validate = (schema) => (req, res, next) => {
 };
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
+  console.log("request token:" + token);
+  console.log("request:" + req);
   if (!token) {
     return res.status(401).json({ message: "Authentication required" });
   }
@@ -191,6 +196,8 @@ router$3.post(
   validate(CreateDeviceSchema),
   async (req, res) => {
     try {
+      console.log("creating device: " + req.body);
+      console.log("user id: " + req.user.id);
       const device = await DeviceService.create(req.body, req.user.id);
       res.status(201).json(device);
     } catch (e) {
