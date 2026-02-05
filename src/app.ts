@@ -28,6 +28,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 //app.use(cors());
 app.use(express.json());
+// For parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/devices', deviceRoutes);

@@ -2,3 +2,9 @@
 {"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:23:54.383Z"}
 {"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:32:59.538Z"}
 {"level":"error","message":"500 - Converting circular structure to JSON\n    --> starting at object with constructor 'Socket'\n    |     property 'parser' -> object with constructor 'HTTPParser'\n    --- property 'socket' closes the circle - /api/devices - POST - 127.0.0.1","timestamp":"2026-02-04T21:34:49.371Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:09.091Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:11.833Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:12.916Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:13.687Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:14.215Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:16.092Z"}

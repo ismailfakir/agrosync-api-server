@@ -104,11 +104,17 @@ const DeviceSchema = new mongoose.Schema({
 const DeviceModel = mongoose.model("Device", DeviceSchema);
 const DeviceService = {
   async create(data, userId) {
-    const device = await DeviceModel.create({
-      ...data,
-      owner: userId
-    });
-    return device;
+    try {
+      const device = await DeviceModel.create({
+        ...data,
+        status: "offline",
+        owner: userId
+      });
+      console.log("✅ Device created");
+      return device;
+    } catch (error) {
+      console.error("❌ Saving device failed:", error);
+    }
   },
   async findAll(userId, role) {
     const query = role === "admin" ? {} : { owner: userId };
@@ -154,8 +160,6 @@ const validate = (schema) => (req, res, next) => {
 };
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
-  console.log("request token:" + token);
-  console.log("request:" + req);
   if (!token) {
     return res.status(401).json({ message: "Authentication required" });
   }
@@ -522,6 +526,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/devices", router$3);
 app.use("/api/users", router$2);
 app.use("/api/auth", router$1);
