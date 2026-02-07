@@ -11,7 +11,7 @@ export const CreateDeviceSchema = registry.register('CreateDeviceRequest', z.obj
   status: z.enum(['online', 'offline', 'maintenance']).optional(),
 }));
 
-export const DeviceResponseSchema = registry.register('DeviceResponse', z.object({
+export const DeviceResponseSchema = registry.register('CreateDeviceResponse', z.object({
   id: z.string(),
   name: z.string(),
   location: z.string(),

@@ -19,8 +19,17 @@ router.get('/me', authenticate, async (req, res) => {
   res.json(user);
 });
 
+registry.registerPath({
+  method: 'get',
+  path: '/users',
+  summary: 'Get all the users',
+  tags: ['Users'],
+  security: [{ bearerAuth: [] }],
+  responses: { 200: { description: 'User data' } },
+});
+
 // Admin only: Get all users
-router.get('/', authenticate, authorize(['admin']), async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   const users = await UserService.findAll();
   res.json(users);
 });

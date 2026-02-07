@@ -6,11 +6,13 @@ import swaggerUi from 'swagger-ui-express';
 import { connectDB } from './config/db';
 import { generateOpenAPIDocs } from './utils/openapi';
 import { errorHandler } from './middlewares/error.middleware';
+import { requestLogger } from './middlewares/logger.middleware';
 import { ApiError } from './utils/apiError';
 import { seed } from './utils/seed';
 
 // Import Routes
 import deviceRoutes from './controllers/device.controller';
+import deviceCommandRoutes from './controllers/deviceCommand.controller';
 import userRoutes from './controllers/user.controller';
 import authRoutes from './controllers/auth.controller'; // (Implement similar to device)
 import sensorRoutes from './controllers/sensor.controller';
@@ -26,12 +28,17 @@ const corsOptions = {
   methods: ['GET', 'POST','PUT','DELETE'], // Specify the allowed HTTP methods
 };
 app.use(cors(corsOptions));
-//app.use(cors());
+
+// 1. Parse JSON first
 app.use(express.json());
+// 2. Use your custom logger
+app.use(requestLogger);
+
 // For parsing application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/devices/command', deviceCommandRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);

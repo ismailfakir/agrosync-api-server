@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   # The Node.js API Service
@@ -17,9 +17,9 @@ services:
 
   # The MongoDB Service
   mongo:
-    image: mongo:6
+    image: mongo:7
     ports:
-      - "27017:27017" # Exposed to host so you can use Compass/TablePlus
+      - "37017:27017" # Exposed to host so you can use Compass/TablePlus
     volumes:
       - ./mongo-data:/data/db # Persist data even if container stops
     restart: always

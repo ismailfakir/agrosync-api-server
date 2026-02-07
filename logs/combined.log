@@ -22,3 +22,36 @@
 {"level":"info","message":"127.0.0.1 - - [05/Feb/2026:23:13:14 +0000] \"POST /iot/command HTTP/1.1\" 404 1287 \"http://localhost:5173/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-05T23:13:14.217Z"}
 {"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-05T23:13:16.092Z"}
 {"level":"info","message":"127.0.0.1 - - [05/Feb/2026:23:13:16 +0000] \"POST /iot/command HTTP/1.1\" 404 1287 \"http://localhost:5173/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-05T23:13:16.093Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T10:34:37.916Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T10:36:00.655Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T10:47:44.830Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:48:51.030Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:48:51 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:48:51.042Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:48:51.057Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:48:51 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:48:51.061Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:49:57.253Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:49:57 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:49:57.254Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:49:57.258Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:49:57 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:49:57.259Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:50:09.262Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:50:09 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:50:09.264Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:50:09.269Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:50:09 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:50:09.271Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:50:52.091Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:50:52 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:50:52.093Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T14:50:52.097Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:14:50:52 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T14:50:52.098Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T15:17:11.788Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T15:17:37.533Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-06T15:17:43.530Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T15:18:01.233Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:15:18:01 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T15:18:01.234Z"}
+{"level":"error","message":"404 - Route not found - /api/api/users - GET","timestamp":"2026-02-06T15:18:01.237Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:15:18:01 +0000] \"GET /api/api/users HTTP/1.1\" 404 1217 \"http://localhost:5173/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T15:18:01.238Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-06T16:13:52.093Z"}
+{"level":"info","message":"127.0.0.1 - - [06/Feb/2026:16:13:52 +0000] \"POST /iot/command HTTP/1.1\" 404 1217 \"http://localhost:5173/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-06T16:13:52.095Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:20:59.783Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:21:08.006Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:21:16.022Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:21:23.733Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:23:10.468Z"}
