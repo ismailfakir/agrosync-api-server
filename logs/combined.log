@@ -55,3 +55,17 @@
 {"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:21:16.022Z"}
 {"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:21:23.733Z"}
 {"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - 127.0.0.1","timestamp":"2026-02-07T02:23:10.468Z"}
+{"level":"error","message":"404 - Route not found - /iot/command - POST","timestamp":"2026-02-07T04:26:58.847Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:04:26:58 +0000] \"POST /iot/command HTTP/1.1\" 404 1217 \"http://localhost:5173/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T04:26:58.853Z"}
+{"level":"error","message":"404 - Route not found - /trigger-alarm - GET","timestamp":"2026-02-07T10:30:17.423Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:30:17 +0000] \"GET /trigger-alarm HTTP/1.1\" 404 1217 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:30:17.430Z"}
+{"level":"error","message":"404 - Route not found - /favicon.ico - GET","timestamp":"2026-02-07T10:30:17.449Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:30:17 +0000] \"GET /favicon.ico HTTP/1.1\" 404 1217 \"http://localhost:3000/trigger-alarm\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:30:17.451Z"}
+{"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:30:38.654Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:30:38 +0000] \"GET /api/trigger-alarm HTTP/1.1\" 404 1217 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:30:38.659Z"}
+{"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:31:02.852Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:31:02 +0000] \"GET /api/trigger-alarm HTTP/1.1\" 404 1217 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:31:02.853Z"}
+{"level":"error","message":"404 - Route not found - /api/alerm - GET","timestamp":"2026-02-07T10:36:38.521Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:36:38 +0000] \"GET /api/alerm HTTP/1.1\" 404 1217 \"http://localhost:3000/api-docs/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:36:38.532Z"}
+{"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:38:42.153Z"}
+{"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:38:42 +0000] \"GET /api/trigger-alarm HTTP/1.1\" 404 1217 \"http://localhost:3000/api-docs/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:38:42.163Z"}
