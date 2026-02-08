@@ -7,14 +7,14 @@ extendZodWithOpenApi(z);
 export const CreateDeviceCommandSchema = registry.register('IoTDeviceCommandRequest', z.object({
   commandId: z.string().min(3),
   deviceId: z.string().min(3),
-  command: z.string().min(3),
+  command: z.string().min(2),
 }));
 
 export const DeviceCommandResponseSchema = registry.register('IoTDeviceCommandResponse', z.object({
   id: z.string(),
   commandId: z.string().min(3),
   deviceId: z.string().min(3),
-  command: z.string().min(3),
+  command: z.string().min(2),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 }));

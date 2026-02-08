@@ -1,6 +1,7 @@
 import { SensorDataModel } from '../models/sensorData.model';
 import { DeviceModel } from '../models/device.model';
 import { ApiError } from '../utils/apiError';
+import mongoose,{ Schema, Types  } from 'mongoose';
 
 export const SensorDataService = {
   async recordData(userId: string, deviceId: string, data: any) {
@@ -9,7 +10,13 @@ export const SensorDataService = {
     if (!device) throw new ApiError(403, 'Unauthorized: You do not own this device');
 
     return await SensorDataModel.create({
-      device: deviceId,
+      device_id: deviceId,
+      ...data
+    });
+  },
+
+  async recordMqttData(data: any) {
+    return await SensorDataModel.create({
       ...data
     });
   },

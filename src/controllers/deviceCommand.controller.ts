@@ -7,6 +7,14 @@ import { registry } from '../utils/openapi';
 import { z } from 'zod';
 import { catchAsync } from '../utils/catchAsync';
 import { ApiError } from '../utils/apiError';
+import dotenv from 'dotenv';
+import { mqttService } from '../services/MqttService';
+
+dotenv.config();
+
+interface SensorCommand {
+  state: string;
+}
 
 const router = Router();
 
@@ -34,6 +42,9 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       // Assuming 'user' role for basic creation
+      console.log(`Sending Sensor command in topic: ${process.env.MQTT_SENSORE_TOPIC_LIGHT}`);
+      const COMMAND_TOPIC = process.env.MQTT_SENSORE_TOPIC_LIGHT || '/RaspberryPiPicoW2/light';
+      mqttService.publish(COMMAND_TOPIC,{"state": req.body.command});
       console.log("creating device command: "+req.body);
       console.log("user id: "+req.user!.id);
       const device = await DeviceCommandService.create(req.body, req.user!.id);

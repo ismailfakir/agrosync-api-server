@@ -1,5 +1,4 @@
 import mqtt, { MqttClient, IClientOptions } from "mqtt";
-
 import dotenv from "dotenv";
 
 /* ENV */

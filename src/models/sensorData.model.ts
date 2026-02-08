@@ -1,29 +1,26 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ISensorData extends Document {
-  device: mongoose.Types.ObjectId;
-  value: number;
-  unit: string;      // e.g., 'Celsius', 'Percentage'
-  dataType: string;  // e.g., 'temperature', 'humidity'
-  timestamp: Date;
+  //device_id: mongoose.Types.ObjectId;
+  device_id: string;
+  device_name: string;
+  temperature: number;      
+  humidity: number;  
+  //updated_at: Date;
+  updated_at: string;
 }
 
 const SensorDataSchema = new Schema<ISensorData>({
-  device: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
-  value: { type: Number, required: true },
-  unit: { type: String, required: true },
-  dataType: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
-}, { 
-  // Optimization: time-series data often benefits from specific indexing
-  timeseries: {
-    timeField: 'timestamp',
-    metaField: 'device',
-    granularity: 'seconds'
-  }
-});
+  //device_id: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  device_id: { type: String, required: true },
+  device_name: { type: String, required: true },
+  temperature: { type: Number, required: true },
+  humidity: { type: Number, required: true },
+  //updated_at: { type: Date, default: Date.now }
+  updated_at: { type: String, required: true },
+}, { timestamps: true });
 
 // Indexing for fast queries by device and time range
-SensorDataSchema.index({ device: 1, timestamp: -1 });
+//SensorDataSchema.index({ device_id: 1 });
 
 export const SensorDataModel = mongoose.model<ISensorData>('SensorData', SensorDataSchema);

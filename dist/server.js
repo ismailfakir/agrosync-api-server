@@ -6,12 +6,16 @@ const winston = require("winston");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 const zodToOpenapi = require("@asteasolutions/zod-to-openapi");
+const chalk = require("chalk");
+const os = require("os");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
+const mqtt = require("mqtt");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
-const dotenv = require("dotenv");
+const crypto$1 = require("crypto");
+const uuid = require("uuid");
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -33,9 +37,11 @@ if (process.env.NODE_ENV !== "production") {
     )
   }));
 }
+dotenv.config();
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/agrosync");
+    console.log(`Configured MongoDB URI in .env: ${process.env.MONGO_URI}`);
+    const conn = await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:37017/agrosync");
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
@@ -90,6 +96,37 @@ const errorHandler = (err, req, res, next) => {
   };
   res.status(statusCode).json(response);
 };
+const SENSITIVE_KEYS = ["password", "token", "secret", "authorization", "credit_card"];
+const redact = (data, keysToHide) => {
+  if (!data || typeof data !== "object") return data;
+  const copy = Array.isArray(data) ? [...data] : { ...data };
+  for (const key in copy) {
+    if (keysToHide.includes(key.toLowerCase())) {
+      copy[key] = "*****";
+    } else if (typeof copy[key] === "object") {
+      copy[key] = redact(copy[key], keysToHide);
+    }
+  }
+  return copy;
+};
+const requestLogger = (req, res, next) => {
+  const start = process.hrtime();
+  const { method, url, body } = req;
+  res.on("finish", () => {
+    const diff = process.hrtime(start);
+    const timeInMs = (diff[0] * 1e3 + diff[1] * 1e-6).toFixed(2);
+    const status = res.statusCode;
+    const statusColor = status >= 500 ? chalk.red.bold : status >= 400 ? chalk.yellow : chalk.green;
+    console.log(
+      `${chalk.gray(`[${(/* @__PURE__ */ new Date()).toLocaleTimeString()}]`)} ${chalk.bold.white(method)} ${chalk.blue(url)} ${statusColor(status)} ${chalk.gray(`(${timeInMs}ms)`)}`
+    );
+    if (method !== "GET" && Object.keys(body).length > 0) {
+      const safeBody = redact(body, SENSITIVE_KEYS);
+      console.log(chalk.magenta("  ↳ Body:"), JSON.stringify(safeBody, null, 2));
+    }
+  });
+  next();
+};
 const DeviceSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: false },
   location: { type: String, required: false, unique: false },
@@ -137,7 +174,7 @@ const CreateDeviceSchema = registry.register("CreateDeviceRequest", zod.z.object
   type: zod.z.string(),
   status: zod.z.enum(["online", "offline", "maintenance"]).optional()
 }));
-registry.register("DeviceResponse", zod.z.object({
+registry.register("CreateDeviceResponse", zod.z.object({
   id: zod.z.string(),
   name: zod.z.string(),
   location: zod.z.string(),
@@ -171,15 +208,7 @@ const authenticate = (req, res, next) => {
     return res.status(403).json({ message: "Invalid token" });
   }
 };
-const authorize = (roles) => {
-  return (req, res, next) => {
-    if (!req.user || !req.user.roles.some((r) => roles.includes(r))) {
-      return res.status(403).json({ message: "Insufficient permissions" });
-    }
-    next();
-  };
-};
-const router$3 = express.Router();
+const router$5 = express.Router();
 registry.registerPath({
   method: "post",
   path: "/devices",
@@ -194,7 +223,7 @@ registry.registerPath({
     400: { description: "Validation Error" }
   }
 });
-router$3.post(
+router$5.post(
   "/",
   authenticate,
   validate(CreateDeviceSchema),
@@ -219,8 +248,197 @@ registry.registerPath({
     200: { description: "List of devices" }
   }
 });
-router$3.get("/", authenticate, async (req, res) => {
+router$5.get("/", authenticate, async (req, res) => {
   const devices = await DeviceService.findAll(req.user.id, req.user.roles[0]);
+  if (!devices) {
+    throw new ApiError(404, "Device not found");
+  }
+  res.json(devices);
+});
+const CommandSchema = new mongoose.Schema(
+  {
+    commandId: { type: String, required: true, unique: false },
+    command: { type: String, required: true, unique: false },
+    deviceId: { type: mongoose.Schema.Types.ObjectId, ref: "Device", required: true }
+  },
+  { timestamps: true }
+);
+const DeviceCommandModel = mongoose.model(
+  "Command",
+  CommandSchema
+);
+const DeviceCommandService = {
+  async create(data, userId) {
+    try {
+      const device = await DeviceCommandModel.create({
+        ...data
+      });
+      console.log("✅ Device command created");
+      return device;
+    } catch (error) {
+      console.error("❌ Saving device command failed:", error);
+    }
+  },
+  async findAll(userId, role) {
+    const query = role === "admin" ? {} : { owner: userId };
+    return await DeviceCommandModel.find(query).populate("owner", "name email");
+  },
+  async findById(id) {
+    return await DeviceCommandModel.findById(id);
+  },
+  async update(id, data) {
+    return await DeviceCommandModel.findByIdAndUpdate(id, data, { new: true });
+  },
+  async delete(id) {
+    return await DeviceCommandModel.findByIdAndDelete(id);
+  }
+};
+zodToOpenapi.extendZodWithOpenApi(zod.z);
+const CreateDeviceCommandSchema = registry.register("IoTDeviceCommandRequest", zod.z.object({
+  commandId: zod.z.string().min(3),
+  deviceId: zod.z.string().min(3),
+  command: zod.z.string().min(3)
+}));
+registry.register("IoTDeviceCommandResponse", zod.z.object({
+  id: zod.z.string(),
+  commandId: zod.z.string().min(3),
+  deviceId: zod.z.string().min(3),
+  command: zod.z.string().min(3),
+  createdAt: zod.z.date().optional(),
+  updatedAt: zod.z.date().optional()
+}));
+const BROKER_URL = process.env.MQTT_BROKER_URL;
+const USERNAME = process.env.MQTT_USERNAME;
+const PASSWORD = process.env.MQTT_PASSWORD;
+dotenv.config();
+const options = {
+  protocol: "wss",
+  username: USERNAME,
+  password: PASSWORD,
+  clientId: `react-${crypto.randomUUID()}`,
+  clean: true,
+  reconnectPeriod: 2e3,
+  connectTimeout: 1e4
+};
+({
+  timestamp: (/* @__PURE__ */ new Date()).toISOString()
+});
+class MqttService {
+  constructor() {
+    this.client = null;
+    this.subscriptions = [];
+    this.brokerUrl = BROKER_URL;
+    this.connect();
+  }
+  connect() {
+    this.client = mqtt.connect(this.brokerUrl, options);
+    this.client.on("connect", () => {
+      console.log("🟢 MQTT Client Connected");
+    });
+    this.client.on("error", (err) => {
+      console.error("🔴 MQTT Connection Error:", err);
+    });
+    this.client.on("message", (incomingTopic, buffer) => {
+      const message = this.parsePayload(buffer);
+      this.subscriptions.forEach((sub) => {
+        if (sub.regex.test(incomingTopic)) {
+          sub.handler(message, incomingTopic);
+        }
+      });
+    });
+  }
+  /**
+   * Converts MQTT wildcards (+ and #) into Regular Expressions
+   */
+  topicToRegex(topic2) {
+    const pattern = topic2.replace(/\+/g, "[^/]+").replace(/#/g, ".*").replace(/\//g, "\\/");
+    return new RegExp(`^${pattern}$`);
+  }
+  parsePayload(buffer) {
+    try {
+      return JSON.parse(buffer.toString());
+    } catch {
+      return buffer.toString();
+    }
+  }
+  /**
+   * Publish a JSON message to a specific topic
+   */
+  publish(topic2, payload2) {
+    if (!this.client?.connected) {
+      console.warn("⚠️ MQTT not connected. Message skipped.");
+      return;
+    }
+    const message = JSON.stringify(payload2);
+    this.client.publish(topic2, message, { qos: 1 }, (err) => {
+      if (err) console.error(`❌ Failed to publish to ${topic2}`, err);
+    });
+    console.log(`✅ published message on topic: ${topic2}`);
+  }
+  /**
+   * Registers a handler for a specific topic or wildcard pattern
+   */
+  on(topicPattern, handler) {
+    if (!this.client) return;
+    this.client.subscribe(topicPattern, (err) => {
+      if (!err) {
+        this.subscriptions.push({
+          topicPattern,
+          regex: this.topicToRegex(topicPattern),
+          handler
+        });
+        console.log(`📡 Registered handler for: ${topicPattern}`);
+      }
+    });
+  }
+}
+const mqttService = new MqttService();
+dotenv.config();
+const router$4 = express.Router();
+registry.registerPath({
+  method: "post",
+  path: "/devices/command",
+  summary: "Create a new IoT Device command",
+  tags: ["Devices"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: { content: { "application/json": { schema: CreateDeviceCommandSchema } } }
+  },
+  responses: {
+    201: { description: "Device command created successfully" },
+    400: { description: "Validation Error" }
+  }
+});
+router$4.post(
+  "/",
+  authenticate,
+  validate(CreateDeviceCommandSchema),
+  async (req, res) => {
+    try {
+      console.log(`Sending Sensor command in topic: ${process.env.MQTT_SENSORE_TOPIC_LIGHT}`);
+      const COMMAND_TOPIC = process.env.MQTT_SENSORE_TOPIC_LIGHT || "/RaspberryPiPicoW2/light";
+      mqttService.publish(COMMAND_TOPIC, { "state": req.body.command });
+      console.log("creating device command: " + req.body);
+      console.log("user id: " + req.user.id);
+      const device = await DeviceCommandService.create(req.body, req.user.id);
+      res.status(201).json(device);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+);
+registry.registerPath({
+  method: "get",
+  path: "/devices/command",
+  summary: "Get all device command",
+  tags: ["Devices"],
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "List of devices" }
+  }
+});
+router$4.get("/", authenticate, async (req, res) => {
+  const devices = await DeviceCommandService.findAll(req.user.id, req.user.roles[0]);
   if (!devices) {
     throw new ApiError(404, "Device not found");
   }
@@ -260,7 +478,7 @@ const UserService = {
     return await UserModel.findByIdAndDelete(id);
   }
 };
-const router$2 = express.Router();
+const router$3 = express.Router();
 registry.registerPath({
   method: "get",
   path: "/users/me",
@@ -269,11 +487,19 @@ registry.registerPath({
   security: [{ bearerAuth: [] }],
   responses: { 200: { description: "User data" } }
 });
-router$2.get("/me", authenticate, async (req, res) => {
+router$3.get("/me", authenticate, async (req, res) => {
   const user = await UserService.findById(req.user.id);
   res.json(user);
 });
-router$2.get("/", authenticate, authorize(["admin"]), async (req, res) => {
+registry.registerPath({
+  method: "get",
+  path: "/users",
+  summary: "Get all the users",
+  tags: ["Users"],
+  security: [{ bearerAuth: [] }],
+  responses: { 200: { description: "User data" } }
+});
+router$3.get("/", authenticate, async (req, res) => {
   const users = await UserService.findAll();
   res.json(users);
 });
@@ -325,14 +551,14 @@ const AuthService = {
   async forgotPassword(email) {
     const user = await UserModel.findOne({ email });
     if (!user) throw new ApiError(404, "No user found with that email");
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    user.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const resetToken = crypto$1.randomBytes(32).toString("hex");
+    user.passwordResetToken = crypto$1.createHash("sha256").update(resetToken).digest("hex");
     user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1e3);
     await user.save();
     return resetToken;
   },
   async resetPassword(token, newPassword) {
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const hashedToken = crypto$1.createHash("sha256").update(token).digest("hex");
     const user = await UserModel.findOne({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: /* @__PURE__ */ new Date() }
@@ -391,7 +617,7 @@ const catchAsync = (fn) => {
     fn(req, res, next).catch(next);
   };
 };
-const router$1 = express.Router();
+const router$2 = express.Router();
 registry.registerPath({
   method: "post",
   path: "/auth/register",
@@ -426,7 +652,7 @@ registry.registerPath({
     }
   }
 });
-router$1.post(
+router$2.post(
   "/register",
   validate(RegisterSchema),
   catchAsync(async (req, res) => {
@@ -434,7 +660,7 @@ router$1.post(
     res.status(201).json(result);
   })
 );
-router$1.post(
+router$2.post(
   "/login",
   validate(LoginSchema),
   catchAsync(async (req, res) => {
@@ -442,14 +668,14 @@ router$1.post(
     res.status(200).json(result);
   })
 );
-router$1.post(
+router$2.post(
   "/forgot-password",
   catchAsync(async (req, res) => {
     const resetToken = await AuthService.forgotPassword(req.body.email);
     res.status(200).json({ message: "Token sent to email", token: resetToken });
   })
 );
-router$1.post(
+router$2.post(
   "/reset-password/:token",
   catchAsync(async (req, res) => {
     const result = await AuthService.resetPassword(
@@ -460,27 +686,26 @@ router$1.post(
   })
 );
 const SensorDataSchema = new mongoose.Schema({
-  device: { type: mongoose.Schema.Types.ObjectId, ref: "Device", required: true },
-  value: { type: Number, required: true },
-  unit: { type: String, required: true },
-  dataType: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
-}, {
-  // Optimization: time-series data often benefits from specific indexing
-  timeseries: {
-    timeField: "timestamp",
-    metaField: "device",
-    granularity: "seconds"
-  }
-});
-SensorDataSchema.index({ device: 1, timestamp: -1 });
+  //device_id: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
+  device_id: { type: String, required: true },
+  device_name: { type: String, required: true },
+  temperature: { type: Number, required: true },
+  humidity: { type: Number, required: true },
+  //updated_at: { type: Date, default: Date.now }
+  updated_at: { type: String, required: true }
+}, { timestamps: true });
 const SensorDataModel = mongoose.model("SensorData", SensorDataSchema);
 const SensorDataService = {
   async recordData(userId, deviceId, data) {
     const device = await DeviceModel.findOne({ _id: deviceId, owner: userId });
     if (!device) throw new ApiError(403, "Unauthorized: You do not own this device");
     return await SensorDataModel.create({
-      device: deviceId,
+      device_id: deviceId,
+      ...data
+    });
+  },
+  async recordMqttData(data) {
+    return await SensorDataModel.create({
       ...data
     });
   },
@@ -505,8 +730,8 @@ registry.register("SensorDataResponse", zod.z.object({
   timestamp: zod.z.date(),
   device: zod.z.string()
 }));
-const router = express.Router();
-router.post(
+const router$1 = express.Router();
+router$1.post(
   "/",
   authenticate,
   validate(CreateSensorDataSchema),
@@ -516,6 +741,26 @@ router.post(
     res.status(201).json(data);
   })
 );
+let myuuid = uuid.v4();
+const router = express.Router();
+registry.registerPath({
+  method: "get",
+  path: "/trigger-alarm",
+  summary: "Publish mqtt message",
+  tags: ["Mqqtt"],
+  security: [{ bearerAuth: [] }],
+  responses: { 200: { description: "User data" } }
+});
+router.get("/", authenticate, async (req, res) => {
+  mqttService.publish("home/security/alarm", {
+    action: "ACTIVATE",
+    severity: "high",
+    triggeredBy: "Express_API",
+    reason: "testing publishing mqtt message",
+    id: myuuid
+  });
+  res.status(200).json({ message: "Alarm triggered via MQTT" });
+});
 const app = express();
 connectDB();
 const corsOptions = {
@@ -526,11 +771,14 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/devices", router$3);
-app.use("/api/users", router$2);
-app.use("/api/auth", router$1);
-app.use("/api/sensor", router);
+app.use("/api/devices/command", router$4);
+app.use("/api/devices", router$5);
+app.use("/api/users", router$3);
+app.use("/api/auth", router$2);
+app.use("/api/sensor", router$1);
+app.use("/api/trigger-alarm", router);
 const openApiDocs = generateOpenAPIDocs();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocs));
 app.get("/api-docs.json", (req, res) => {
@@ -547,6 +795,28 @@ app.use((req, res, next) => {
   next(new ApiError(404, "Route not found"));
 });
 app.use(errorHandler);
+const topic = "/agrosync/sensordata";
+mqttService.on(topic, (data) => {
+  console.log("✅ Received sensor data:", data);
+});
+mqttService.on("home/+/temp", (data, topic2) => {
+  const room = topic2.split("/")[1];
+  console.log(`Temperature in ${room} is ${data.value}°C`);
+});
+mqttService.on("logs/#", (data, topic2) => {
+  console.log(`[LOG SYSTEM - ${topic2}]:`, data);
+});
+setInterval(() => {
+  let myuuid2 = uuid.v4();
+  const heartbeat = {
+    id: myuuid2,
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage().heapUsed,
+    load: os.loadavg()[0],
+    status: "online"
+  };
+  mqttService.publish("/agrosync/servers/status", heartbeat);
+}, 6e4);
 dotenv.config();
 const viteNodeApp = app;
 const PORT = process.env.PORT || 3e3;

@@ -9,13 +9,11 @@ export const DeviceCommandService = {
     try {
       const device = await DeviceCommandModel.create({
         ...data,
-        status: "offline",
-        owner: userId,
       });
-      console.log('✅ Device created');
+      console.log('✅ Device command created');
       return device;
     } catch (error) {
-      console.error("❌ Saving device failed:", error);
+      console.error("❌ Saving device command failed:", error);
     }
   },
 
