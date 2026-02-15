@@ -1,9 +1,13 @@
 import { defineConfig } from 'vite';
 import { VitePluginNode } from 'vite-plugin-node';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const PORT = +(process.env.PORT || 3000);// + sign convert it to Number
 
 export default defineConfig({
   server: {
-    port: 3000,
+    port: PORT,
   },
   plugins: [
     ...VitePluginNode({

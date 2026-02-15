@@ -37,3 +37,8 @@
 {"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:31:02.852Z"}
 {"level":"error","message":"404 - Route not found - /api/alerm - GET","timestamp":"2026-02-07T10:36:38.521Z"}
 {"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:38:42.153Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:40:59.643Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:09.525Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:22.841Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:57.209Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:42:08.542Z"}

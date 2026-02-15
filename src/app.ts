@@ -8,7 +8,6 @@ import { generateOpenAPIDocs } from "./utils/openapi";
 import { errorHandler } from "./middlewares/error.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
 import { ApiError } from "./utils/apiError";
-import { seed } from "./utils/seed";
 import os from "os";
 
 // Import Routes
@@ -23,6 +22,11 @@ import { SensorDataService } from "./services/sensorData.service";
 
 import { v4 as uuidv4 } from "uuid";
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8880'
+
 const app = express();
 
 // Connect DB
@@ -30,7 +34,7 @@ connectDB();
 
 // Middleware
 const corsOptions = {
-  origin: "http://localhost:5173", // Match your frontend's address
+  origin: FRONTEND_URL, // Match your frontend's address
   methods: ["GET", "POST", "PUT", "DELETE"], // Specify the allowed HTTP methods
 };
 app.use(cors(corsOptions));

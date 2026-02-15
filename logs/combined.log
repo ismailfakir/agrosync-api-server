@@ -69,3 +69,8 @@
 {"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:36:38 +0000] \"GET /api/alerm HTTP/1.1\" 404 1217 \"http://localhost:3000/api-docs/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:36:38.532Z"}
 {"level":"error","message":"404 - Route not found - /api/trigger-alarm - GET","timestamp":"2026-02-07T10:38:42.153Z"}
 {"level":"info","message":"127.0.0.1 - - [07/Feb/2026:10:38:42 +0000] \"GET /api/trigger-alarm HTTP/1.1\" 404 1217 \"http://localhost:3000/api-docs/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\"","timestamp":"2026-02-07T10:38:42.163Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:40:59.643Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:09.525Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:22.841Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:41:57.209Z"}
+{"level":"error","message":"500 - Invalid email or password - /api/auth/login - POST - ::1","timestamp":"2026-02-14T20:42:08.542Z"}

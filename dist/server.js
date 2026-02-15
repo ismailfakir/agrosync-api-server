@@ -8,7 +8,7 @@ const swaggerUi = require("swagger-ui-express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const zodToOpenapi = require("@asteasolutions/zod-to-openapi");
-const chalk = require("chalk");
+const node_util = require("node:util");
 const os = require("os");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
@@ -116,13 +116,12 @@ const requestLogger = (req, res, next) => {
     const diff = process.hrtime(start);
     const timeInMs = (diff[0] * 1e3 + diff[1] * 1e-6).toFixed(2);
     const status = res.statusCode;
-    const statusColor = status >= 500 ? chalk.red.bold : status >= 400 ? chalk.yellow : chalk.green;
     console.log(
-      `${chalk.gray(`[${(/* @__PURE__ */ new Date()).toLocaleTimeString()}]`)} ${chalk.bold.white(method)} ${chalk.blue(url)} ${statusColor(status)} ${chalk.gray(`(${timeInMs}ms)`)}`
+      `${node_util.styleText(["white", "bold"], `[${(/* @__PURE__ */ new Date()).toLocaleTimeString()}]`)} ${node_util.styleText(["yellowBright", "bold"], method)} ${node_util.styleText("blue", url)} ${node_util.styleText(["red", "bold"], `${status}`)} ${node_util.styleText("cyanBright", `(${timeInMs}ms)`)}`
     );
     if (method !== "GET" && Object.keys(body).length > 0) {
       const safeBody = redact(body, SENSITIVE_KEYS);
-      console.log(chalk.magenta("  ↳ Body:"), JSON.stringify(safeBody, null, 2));
+      console.log(node_util.styleText("cyan", "  ↳ Body:"), JSON.stringify(safeBody, null, 2));
     }
   });
   next();
@@ -297,13 +296,13 @@ zodToOpenapi.extendZodWithOpenApi(zod.z);
 const CreateDeviceCommandSchema = registry.register("IoTDeviceCommandRequest", zod.z.object({
   commandId: zod.z.string().min(3),
   deviceId: zod.z.string().min(3),
-  command: zod.z.string().min(3)
+  command: zod.z.string().min(2)
 }));
 registry.register("IoTDeviceCommandResponse", zod.z.object({
   id: zod.z.string(),
   commandId: zod.z.string().min(3),
   deviceId: zod.z.string().min(3),
-  command: zod.z.string().min(3),
+  command: zod.z.string().min(2),
   createdAt: zod.z.date().optional(),
   updatedAt: zod.z.date().optional()
 }));
@@ -761,10 +760,12 @@ router.get("/", authenticate, async (req, res) => {
   });
   res.status(200).json({ message: "Alarm triggered via MQTT" });
 });
+dotenv.config();
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:8880";
 const app = express();
 connectDB();
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: FRONTEND_URL,
   // Match your frontend's address
   methods: ["GET", "POST", "PUT", "DELETE"]
   // Specify the allowed HTTP methods
@@ -784,13 +785,19 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocs));
 app.get("/api-docs.json", (req, res) => {
   res.json(openApiDocs);
 });
-app.use(morgan("combined", {
-  stream: { write: (message) => logger.info(message.trim()) }
-}));
-app.use((err, req, res, next) => {
-  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-  res.status(err.status || 500).json({ message: err.message });
-});
+app.use(
+  morgan("combined", {
+    stream: { write: (message) => logger.info(message.trim()) }
+  })
+);
+app.use(
+  (err, req, res, next) => {
+    logger.error(
+      `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
+    );
+    res.status(err.status || 500).json({ message: err.message });
+  }
+);
 app.use((req, res, next) => {
   next(new ApiError(404, "Route not found"));
 });
@@ -807,20 +814,19 @@ mqttService.on("logs/#", (data, topic2) => {
   console.log(`[LOG SYSTEM - ${topic2}]:`, data);
 });
 setInterval(() => {
-  let myuuid2 = uuid.v4();
-  const heartbeat = {
-    id: myuuid2,
+  uuid.v4();
+  ({
     uptime: process.uptime(),
     memoryUsage: process.memoryUsage().heapUsed,
-    load: os.loadavg()[0],
-    status: "online"
-  };
-  mqttService.publish("/agrosync/servers/status", heartbeat);
+    load: os.loadavg()[0]
+  });
+  console.log("server alive!");
 }, 6e4);
 dotenv.config();
 const viteNodeApp = app;
 const PORT = process.env.PORT || 3e3;
 app.listen(PORT, () => {
+  console.log(`HOME:${process.env.HOME}`);
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Swagger Docs available at http://localhost:${PORT}/api-docs`);
 });

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import chalk from 'chalk';
+import { styleText } from 'node:util';
 
 const SENSITIVE_KEYS = ['password', 'token', 'secret', 'authorization', 'credit_card'];
 
@@ -32,18 +32,18 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
     const status = res.statusCode;
 
     // Color code the status
-    const statusColor = status >= 500 ? chalk.red.bold : status >= 400 ? chalk.yellow : chalk.green;
+    const statusColor = status >= 500 ? ['red', 'bold'] : status >= 400 ? ['yellow'] : ['green'];
 
     console.log(
-      `${chalk.gray(`[${new Date().toLocaleTimeString()}]`)} ` +
-      `${chalk.bold.white(method)} ${chalk.blue(url)} ` +
-      `${statusColor(status)} ${chalk.gray(`(${timeInMs}ms)`)}`
+      `${styleText(['white', 'bold'],`[${new Date().toLocaleTimeString()}]`)} ` +
+      `${styleText(['yellowBright', 'bold'],method)} ${styleText('blue',url)} ` +
+      `${styleText(['red', 'bold'], `${status}`)} ${styleText('cyanBright',`(${timeInMs}ms)`)}`
     );
 
     if (method !== 'GET' && Object.keys(body).length > 0) {
       // Redact the body before logging
       const safeBody = redact(body, SENSITIVE_KEYS);
-      console.log(chalk.magenta('  ↳ Body:'), JSON.stringify(safeBody, null, 2));
+      console.log(styleText('cyan','  ↳ Body:'), JSON.stringify(safeBody, null, 2));
     }
   });
 
