@@ -19,15 +19,21 @@ import sensorRoutes from "./controllers/sensordata.controller";
 import mqttRoutes from "./controllers/mqtt.controller";
 import { mqttService } from "./services/MqttService";
 import { SensorDataService } from "./services/sensorData.service";
+import { createServer } from 'http';
+import { notificationService } from './services/NotificationService';
 
 import { v4 as uuidv4 } from "uuid";
 
 import dotenv from 'dotenv';
 
 dotenv.config();
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8880'
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080'
 
 const app = express();
+const httpServer = createServer(app);
+
+// Initialize the socket service
+notificationService.init(httpServer);
 
 // Connect DB
 connectDB();
@@ -126,7 +132,13 @@ setInterval(() => {
     status: "online",
   };
   console.log("server alive!");
+  // Clean, abstracted call
+  notificationService.sendNotification("agrpsync-socket-client", "server alive! "+myuuid);
   //mqttService.publish('/agrosync/servers/status', heartbeat);
-}, 60000);
+}, 30000);
 
-export default app;
+/* httpServer.listen(3000, () => {
+  console.log("Server running on port 3000");
+}); */
+
+export default httpServer;

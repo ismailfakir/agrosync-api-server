@@ -2,18 +2,18 @@ version: '3.9'
 
 services:
   # The Node.js API Service
-  api:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      # 'mongo' here refers to the service name defined below
-      - MONGO_URI=mongodb://mongo:37017/agrosync
-      - JWT_SECRET=dockersecret
-    depends_on:
-      - mongo
-    restart: always
+  # api:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PORT=3000
+  #     # 'mongo' here refers to the service name defined below
+  #     - MONGO_URI=mongodb://mongo:37017/agrosync
+  #     - JWT_SECRET=dockersecret
+  #   depends_on:
+  #     - mongo
+  #   restart: always
 
   # The MongoDB Service
   mongo:
