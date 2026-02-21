@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { MqttPayloadService } from '../services/mqttPayload.service';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { catchAsync } from '../utils/catchAsync';
@@ -10,7 +10,7 @@ router.get(
   '/logs',
   authenticate,
   authorize(['admin']),
-  catchAsync(async (req, res) => {
+  catchAsync(async (rreq: Request, res: Response) => {
     const logs = await MqttPayloadService.getRecentPayloads();
     res.json(logs);
   })

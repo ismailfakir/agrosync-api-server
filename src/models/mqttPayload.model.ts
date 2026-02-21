@@ -42,11 +42,11 @@ MqttPayloadSchema.post('save', async function(doc) {
 
       if (raw.temp !== undefined) {
         await SensorDataModel.create({
-          device: device._id,
-          value: raw.temp,
-          unit: raw.unit || 'Celsius',
-          dataType: 'temperature',
-          timestamp: doc.receivedAt
+          device_id: "test",
+          device_name: "test",
+          temperature: 0,
+          humidity: 0,
+          updated_at: "test date"
         });
         logger.info(`Automated extraction: SensorData created for Device ${serialNumber}`);
       }
