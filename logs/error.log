@@ -243,3 +243,5 @@
 {"level":"error","message":"404 - Route not found - /socket.io/?EIO=4&transport=polling&t=2gfdogd7 - GET","timestamp":"2026-02-19T06:14:43.940Z"}
 {"level":"error","message":"404 - Route not found - /socket.io/?EIO=4&transport=polling&t=2ggx6rql - GET","timestamp":"2026-02-19T06:14:45.937Z"}
 {"level":"error","message":"404 - Route not found - /socket.io/?EIO=4&transport=polling&t=2gk0ajuy - GET","timestamp":"2026-02-19T06:14:49.936Z"}
+{"level":"error","message":"404 - Route not found - /favicon.ico - GET","timestamp":"2026-02-22T04:14:48.428Z"}
+{"level":"error","message":"500 - Cast to ObjectId failed for value \"test@test.com\" (type string) at path \"_id\" for model \"UserSettings\" - /usersettings/test@test.com - GET - ::ffff:127.0.0.1","timestamp":"2026-02-22T04:24:41.094Z"}

@@ -26,6 +26,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import dotenv from 'dotenv';
 
+import { createCrudRouter } from "./core/crud.router";
+import { UserSettingsController } from "./modules/usersettings/usersettings.controller";
+
 dotenv.config();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080'
 
@@ -60,6 +63,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/sensor", sensorRoutes);
 app.use("/api/trigger-alarm", mqttRoutes);
+
+// use core repository/service/controller
+const userSettingsController = new UserSettingsController();
+app.use("/api/usersettings", createCrudRouter(userSettingsController));
 
 // OpenAPI / Swagger
 const openApiDocs = generateOpenAPIDocs();
@@ -106,8 +113,8 @@ const topic_command = "/agrosync/command";
 mqttService.on(topic, (data) => {
   console.log("✅ Received sensor data:", data);
 
-  //SensorDataService.recordMqttData(data);
-  //console.log('✅ data saved to DB:');
+  SensorDataService.recordMqttData(data);
+  console.log('✅ data saved to DB:');
 });
 
 // Handler 2: Wildcard (matches home/kitchen/temp, home/bedroom/temp, etc.)

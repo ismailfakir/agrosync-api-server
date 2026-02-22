@@ -40,7 +40,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       `${styleText(['red', 'bold'], `${status}`)} ${styleText('cyanBright',`(${timeInMs}ms)`)}`
     );
 
-    if (method !== 'GET' && Object.keys(body).length > 0) {
+    if (method !== 'GET' && method !== 'DELETE' && Object.keys(body).length > 0) {
       // Redact the body before logging
       const safeBody = redact(body, SENSITIVE_KEYS);
       console.log(styleText('cyan','  ↳ Body:'), JSON.stringify(safeBody, null, 2));

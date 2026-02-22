@@ -43,9 +43,10 @@ router.post(
     try {
       // Assuming 'user' role for basic creation
       console.log(`Sending Sensor command in topic: ${process.env.MQTT_SENSORE_TOPIC_LIGHT}`);
-      const COMMAND_TOPIC = process.env.MQTT_SENSORE_TOPIC_LIGHT || '/RaspberryPiPicoW2/light';
-      mqttService.publish(COMMAND_TOPIC,{"state": req.body.command});
-      console.log("creating device command: "+req.body);
+      //const COMMAND_TOPIC = process.env.MQTT_SENSORE_TOPIC_LIGHT || '/RaspberryPiPicoW2/light';
+      const COMMAND_TOPIC = '/agrosync/'+req.body.deviceId+'/command'
+      mqttService.publish(COMMAND_TOPIC,req.body);
+      console.log("creating device command: "+JSON.stringify(req.body));
       console.log("user id: "+req.user!.id);
       const device = await DeviceCommandService.create(req.body, req.user!.id);
       res.status(201).json(device);
